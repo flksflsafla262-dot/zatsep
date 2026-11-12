@@ -1,0 +1,15 @@
+{
+  "name": "zatsep",
+  "version": "1.0.0",
+  "description": "Зацеп — личный сервер-загрузчик видео и музыки (yt-dlp + ffmpeg)",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node server/index.js",
+    "https": "node server/index.js --https",
+    "tools": "node scripts/get-tools.js",
+    "test": "node scripts/selftest.js"
+  },
+  "dependencies": {}
+}

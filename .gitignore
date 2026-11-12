@@ -1,0 +1,8 @@
+node_modules/
+data/
+bin/
+.playwright-mcp/
+.claude/
+scripts/last-report.md
+*.log
+.DS_Store

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Зацеп — качалка видео и музыки</title>
+<meta name="description" content="Личный загрузчик видео и музыки: вставь ссылку, выбери формат, получи файл.">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f3f4" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Зацеп">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<script src="/js/theme-boot.js"></script>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="ambient" aria-hidden="true"><i></i><i></i></div>
+
+<div id="boot" class="boot" aria-label="Загрузка"><div class="boot-mark"></div></div>
+
+<div id="app" class="app" hidden>
+  <aside class="side" id="side" aria-label="Основное меню">
+    <a class="brand" href="#/" aria-label="Зацеп — на главную"><span class="brand-mark" id="brandMark"></span><span class="brand-name">Зацеп</span></a>
+    <nav class="nav pills pills-v" id="sideNav"></nav>
+    <div class="side-foot">
+      <div class="meter" id="sideMeter" hidden></div>
+      <button class="side-user" id="sideUser" type="button"></button>
+    </div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="view" id="view"></div>
+  </main>
+
+  <nav class="bnav pills" id="bottomNav" aria-label="Нижнее меню"></nav>
+  <div class="mini" id="mini" hidden></div>
+</div>
+
+<div id="overlays"></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div class="drop-hint" id="dropHint" hidden><div><span id="dropIcon"></span><b>Отпусти, чтобы добавить</b><small>ссылку или файл</small></div></div>
+
+<script type="module" src="/js/main.js"></script>
+<noscript><p style="padding:24px;color:#fff;font:16px system-ui">Для работы Зацепа нужен включённый JavaScript.</p></noscript>
+</body>
+</html>
