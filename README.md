@@ -32,7 +32,8 @@ npm run https
 
 ## Облако
 
-GitHub Pages не умеет запускать yt-dlp, поэтому сервер надо где-то запускать: [Render](https://render.com/deploy?repo=https://github.com/flksflsafla262-dot/zatsep) (есть Dockerfile и ender.yaml) или GitHub Codespaces (.devcontainer). YouTube часто блокирует адреса дата-центров — тогда загрузи cookies.txt в «Настройки».
+GitHub Pages не умеет запускать yt-dlp, поэтому сервер надо где-то запускать: [Render](https://render.com/deploy?repo=https://github.com/flksflsafla262-dot/zatsep) (есть `Dockerfile` и `render.yaml`) или GitHub Codespaces (`.devcontainer`). YouTube часто блокирует адреса дата-центров — тогда загрузи cookies.txt в «Настройки».
+ender.yaml) или GitHub Codespaces (.devcontainer). YouTube часто блокирует адреса дата-центров — тогда загрузи cookies.txt в «Настройки».
 
 ## Что внутри
 
