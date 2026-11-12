@@ -24,11 +24,14 @@ export async function verifyPassword(pw, stored) {
   } catch { return false; }
 }
 
+/** Режим без входа (по умолчанию): все, кто открыл сайт, работают как владелец. REQUIRE_LOGIN=1 возвращает аккаунты. */
+export const OPEN = process.env.REQUIRE_LOGIN !== '1';
+
 export async function ensureOwner() {
   const has = get("SELECT id FROM users WHERE role='owner'");
-  if (has) return false;
+  if (has) { if (OPEN && has.must_change) run('UPDATE users SET must_change=0 WHERE id=?', has.id); return false; }
   run('INSERT INTO users(username,pass,role,must_change,created_at) VALUES(?,?,?,?,?)',
-    OWNER_NAME, await hashPassword(OWNER_DEFAULT_PASS), 'owner', 1, now());
+    OWNER_NAME, await hashPassword(OWNER_DEFAULT_PASS), 'owner', OPEN ? 0 : 1, now());
   return true;
 }
 
@@ -64,6 +67,7 @@ export function parseCookies(h) {
 }
 
 export function userFromRequest(req) {
+  if (OPEN) return get("SELECT * FROM users WHERE role='owner' ORDER BY id LIMIT 1");
   const token = parseCookies(req.headers.cookie).sid;
   if (!token) return null;
   const row = get(`SELECT u.*, s.expires_at AS s_exp FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.id=?`, sha256(token));

@@ -56,19 +56,19 @@ export function mountProfile(root, { rerenderShell }) {
     usage.replaceChildren(h('div.stat-row', h('div.stat', h('b', fmtBytes(s.used)), h('span', `занято (${s.count} ${plural(s.count, 'файл', 'файла', 'файлов')})`)), h('div.stat', h('b', fmtBytes(s.free)), h('span', 'свободно на сервере')), lim ? h('div.stat', h('b', fmtBytes(lim)), h('span', 'твой лимит')) : null, s.limits?.perDay ? h('div.stat', h('b', String(s.limits.perDay)), h('span', 'загрузок в сутки')) : null));
   }).catch(() => {});
   root.append(
-    h('div.page-head', h('div', h('h1', 'Профиль'), h('p', me.role === 'owner' ? 'Ты владелец этого сервера.' : 'Твоя библиотека видна только тебе.'))),
+    h('div.page-head', h('div', h('h1', 'Профиль'), h('p', state.open ? 'Вход отключён — оформление и уведомления.' : me.role === 'owner' ? 'Ты владелец этого сервера.' : 'Твоя библиотека видна только тебе.'))),
     h('div.settings-grid',
-      h('div.setting-card', h('div.profile-top', avatarWrap, h('div.grow', { style: { minWidth: '220px' } }, sheetField('Имя', h('div.row', { style: { flexWrap: 'nowrap' } }, h('div.grow', name), nameBtn))))),
-      h('div.setting-card', h('h3', ic('lock'), 'Пароль'), me.mustChange ? h('div.banner', ic('info'), h('span', 'Сейчас у тебя пароль по умолчанию. Лучше сменить его.')) : null, h('div.grid3', sheetField('Текущий', op), sheetField('Новый (от 8 знаков)', np), sheetField('Повтори новый', np2)), h('div', pwBtn)),
+      state.open ? null : h('div.setting-card', h('div.profile-top', avatarWrap, h('div.grow', { style: { minWidth: '220px' } }, sheetField('Имя', h('div.row', { style: { flexWrap: 'nowrap' } }, h('div.grow', name), nameBtn))))),
+      state.open ? null : h('div.setting-card', h('h3', ic('lock'), 'Пароль'), me.mustChange ? h('div.banner', ic('info'), h('span', 'Сейчас у тебя пароль по умолчанию. Лучше сменить его.')) : null, h('div.grid3', sheetField('Текущий', op), sheetField('Новый (от 8 знаков)', np), sheetField('Повтори новый', np2)), h('div', pwBtn)),
       h('div.setting-card', h('h3', ic('sun'), 'Оформление'), theme),
       h('div.setting-card', h('h3', ic('bell'), 'Уведомления'), h('label.check', h('span', 'Сообщать, когда загрузка готова', h('small', 'Всплывающее уведомление браузера, пока сайт открыт')), notif)),
       h('div.setting-card', h('h3', ic('disk'), 'Место'), usage),
-      h('div.setting-card', h('h3', ic('user'), 'Сеанс'),
+      h('div.setting-card', h('h3', ic('user'), state.open ? 'Приложение' : 'Сеанс'),
         h('div.row', installEvent ? h('button.btn', { type: 'button', onclick: async () => { installEvent.prompt(); installEvent = null; } }, ic('download'), 'Установить как приложение') : null,
-          h('button.btn', { type: 'button', onclick: async () => { await post('/api/logout'); location.hash = '#/'; location.reload(); } }, ic('logout'), 'Выйти'),
-          h('button.btn.danger', { type: 'button', onclick: async () => { if (await confirmSheet({ title: 'Выйти везде?', text: 'Все устройства, где ты вошёл, потеряют доступ. Придётся войти заново.', ok: 'Выйти везде', danger: true })) { await post('/api/logout-all'); location.reload(); } } }, ic('stop'), 'Выйти на всех устройствах')),
+          state.open ? null : h('button.btn', { type: 'button', onclick: async () => { await post('/api/logout'); location.hash = '#/'; location.reload(); } }, ic('logout'), 'Выйти'),
+          state.open ? null : h('button.btn.danger', { type: 'button', onclick: async () => { if (await confirmSheet({ title: 'Выйти везде?', text: 'Все устройства, где ты вошёл, потеряют доступ. Придётся войти заново.', ok: 'Выйти везде', danger: true })) { await post('/api/logout-all'); location.reload(); } } }, ic('stop'), 'Выйти на всех устройствах')),
         !state.secure ? h('p.muted.small', 'Подсказка: чтобы ставить сайт как приложение и пользоваться «Поделиться», запусти сервер командой «npm run https».') : null),
-      state.isOwner() ? h('div.row', h('a.btn', { href: '#/friends' }, ic('users'), 'Друзья и приглашения'), h('a.btn', { href: '#/settings' }, ic('settings'), 'Настройки сервера')) : null),
+      state.isOwner() ? h('div.row', state.open ? null : h('a.btn', { href: '#/friends' }, ic('users'), 'Друзья и приглашения'), h('a.btn', { href: '#/settings' }, ic('settings'), 'Настройки сервера')) : null),
   );
   return () => {};
 }

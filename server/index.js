@@ -77,7 +77,7 @@ route('GET', '/api/me', async ({ res, user }) => {
     user: auth.publicUser(user), limits: dl.limitsFor(user),
     defaults: { quality: s.defaultQuality, container: s.defaultContainer, audio: s.defaultAudio, shareHours: s.shareHours },
     tools: { ytdlp: tools.ytdlp.ok, ffmpeg: tools.ffmpeg.ok && tools.ffprobe.ok, gallerydl: tools.gallerydl.ok },
-    secure: !!res.req.socket.encrypted,
+    secure: !!res.req.socket.encrypted, open: auth.OPEN,
   });
 });
 route('POST', '/api/password', async ({ req, res, user }) => {
@@ -515,11 +515,21 @@ async function serveStatic(req, res, pathname) {
   serveFile(req, res, f, { cache: 'no-cache' });
 }
 
+const EXTRA_HOSTS = String(process.env.ALLOWED_HOSTS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+function hostAllowed(hostHeader) {
+  const h = String(hostHeader || '').toLowerCase().replace(/:\d+$/, '').replace(/^\[|\]$/g, '');
+  if (!h) return false;
+  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local') || h === os.hostname().toLowerCase() || EXTRA_HOSTS.includes(h)) return true;
+  return /^\d+\.\d+\.\d+\.\d+$/.test(h) || h === '::1' || /^(fe80|fc|fd)/.test(h);
+}
+
 async function handle(req, res) {
   for (const [k, v] of Object.entries(SEC_HEADERS)) res.setHeader(k, v);
   const url = new URL(req.url, 'http://localhost');
   const method = req.method === 'HEAD' ? 'GET' : req.method;
   try {
+    // без входа: защита от DNS rebinding — принимаем только локальные имена/адреса (на публичном хостинге: ALLOW_ANY_HOST=1)
+    if (auth.OPEN && process.env.ALLOW_ANY_HOST !== '1' && !hostAllowed(req.headers.host)) fail(403, 'bad_host', 'Открой сайт по адресу localhost или по IP в локальной сети');
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && !auth.originOk(req)) fail(403, 'bad_origin', 'Запрос с чужого адреса отклонён');
     if (req.method === 'GET' && req.headers.origin && !auth.originOk(req) && url.pathname === '/api/events') fail(403, 'bad_origin', 'Запрос с чужого адреса отклонён');
     if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
@@ -587,7 +597,8 @@ async function main() {
     row('yt-dlp', tools.ytdlp); row('ffmpeg', tools.ffmpeg); row('ffprobe', tools.ffprobe); row('gifski', tools.gifski); row('gallery-dl', tools.gallerydl);
     if (tools.ytdlp.ok && !tools.ytdlp.jsRuntimes) console.log('   ⚠ этот yt-dlp старый (нет --js-runtimes) — обновится автоматически');
     console.log(installHelp());
-    if (created) console.log('  Первый запуск: логин «Пользователь», пароль 12345678 (при входе предложим сменить).\n');
+    if (auth.OPEN) console.log('  Вход отключён: просто открой сайт. Не выставляй порт в интернет без защиты (REQUIRE_LOGIN=1 включает аккаунты).\n');
+    else if (created) console.log('  Первый запуск: логин «Пользователь», пароль 12345678 (при входе предложим сменить).\n');
     console.log(`  Данные: ${DATA_DIR}\n  Файлы:  ${filesRoot()}\n`);
   });
 

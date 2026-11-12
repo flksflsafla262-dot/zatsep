@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Зацеп — качалка видео и музыки</title>
+<meta name="description" content="Вставил ссылку — файл скачался на твоё устройство. YouTube, SoundCloud, TikTok, VK и сотни других сайтов.">
+<style>
+  :root { color-scheme: dark light; --bg:#000; --fg:#f6f6f7; --mu:#92929a; --card:rgba(255,255,255,.06); --line:rgba(255,255,255,.12); --ac:#fff; --on:#000; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f2f2f3; --fg:#09090a; --mu:#6c6c74; --card:rgba(0,0,0,.045); --line:rgba(0,0,0,.1); --ac:#09090a; --on:#fff; } }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--fg); font:16px/1.55 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif; display:grid; place-items:center; padding:24px; }
+  main { width:min(720px,100%); display:grid; gap:22px; }
+  h1 { font-size:clamp(40px,9vw,76px); letter-spacing:-.045em; line-height:1; margin:0; }
+  p { color:var(--mu); margin:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:22px; display:grid; gap:12px; }
+  h2 { margin:0; font-size:18px; letter-spacing:-.02em; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  a.btn { display:inline-flex; align-items:center; height:46px; padding:0 22px; border-radius:999px; background:var(--card); border:1px solid var(--line); color:var(--fg); text-decoration:none; font-weight:620; }
+  a.btn.pri { background:var(--ac); color:var(--on); border-color:var(--ac); }
+  pre { margin:0; padding:14px 16px; border-radius:16px; background:var(--card); border:1px solid var(--line); overflow:auto; font:14px/1.5 ui-monospace,Consolas,monospace; color:var(--fg); }
+  small { color:var(--mu); }
+</style>
+</head>
+<body>
+<main>
+  <div><h1>Зацеп</h1><p style="margin-top:14px;font-size:18px">Вставил ссылку — файл сразу скачался на твоё устройство. YouTube, SoundCloud, TikTok, VK, Rutube, X и сотни других сайтов. Без входа.</p></div>
+
+  <div class="card">
+    <h2>Почему это не просто страница на GitHub</h2>
+    <p>GitHub Pages отдаёт только статику и не умеет запускать программы. А скачивание видео делает yt-dlp + ffmpeg — им нужен сервер. Поэтому Зацеп запускается у тебя (или в облаке), а скачанное уходит прямо в твой браузер.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. На своём компьютере — лучший вариант</h2>
+    <pre>git clone https://github.com/flksflsafla262-dot/zatsep.git
+cd zatsep
+npm install
+npm run tools
+npm start</pre>
+    <p>Нужен Node.js 22+. Дальше открой сайт и вставляй ссылки.</p>
+    <div class="row"><a class="btn pri" href="http://localhost:3000" rel="noopener">Открыть localhost:3000</a><a class="btn" href="https://nodejs.org">Скачать Node.js</a></div>
+  </div>
+
+  <div class="card">
+    <h2>2. В облаке, в два клика</h2>
+    <p>Свой сервер с публичной ссылкой. Минус: YouTube часто блокирует адреса дата-центров, тогда нужны cookies (Настройки → Cookies).</p>
+    <div class="row">
+      <a class="btn" href="https://render.com/deploy?repo=https://github.com/flksflsafla262-dot/zatsep">Запустить на Render</a>
+      <a class="btn" href="https://codespaces.new/flksflsafla262-dot/zatsep">Открыть в Codespaces</a>
+    </div>
+    <small>Не оставляй облачную копию открытой для всех: вход отключён, ей сможет пользоваться любой, кто знает адрес.</small>
+  </div>
+
+  <p><a href="https://github.com/flksflsafla262-dot/zatsep" style="color:var(--fg)">Исходный код на GitHub</a> · сервис для личного использования контента, на который у тебя есть права.</p>
+</main>
+</body>
+</html>

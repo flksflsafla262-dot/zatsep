@@ -1,0 +1,8 @@
+{
+  "name": "Зацеп",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y ffmpeg python3 && npm run tools",
+  "postAttachCommand": "ALLOW_ANY_HOST=1 npm start",
+  "forwardPorts": [3000],
+  "portsAttributes": { "3000": { "label": "Зацеп", "onAutoForward": "openBrowser" } }
+}

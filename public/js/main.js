@@ -27,7 +27,7 @@ function routeOf() {
 
 // ── навигация ──
 function buildNav() {
-  const items = [...NAV.filter((n) => n.path !== '/profile'), ...(state.isOwner() ? OWNER_NAV : []), NAV.find((n) => n.path === '/profile')];
+  const items = [...NAV.filter((n) => n.path !== '/profile'), ...(state.isOwner() ? OWNER_NAV.filter((n) => !(state.open && n.path === '/friends')) : []), NAV.find((n) => n.path === '/profile')];
   sideNav.replaceChildren(...items.map((n) => navBtn(n, 'side')));
   bottomNav.replaceChildren(...NAV.map((n) => navBtn(n, 'bottom')));
   pillInit(sideNav); pillInit(bottomNav);
@@ -53,7 +53,7 @@ function paintBadge() {
 }
 function paintUser() {
   const u = $('#sideUser');
-  u.replaceChildren(avatarEl({ ...state.me, avatarV: state.me.avatar ? Date.now() % 1e7 : 0 }), h('span', h('b', state.me.username), h('small', state.me.role === 'owner' ? 'владелец' : 'друг')));
+  u.replaceChildren(avatarEl({ ...state.me, username: state.open ? 'З' : state.me.username, avatarV: 0 }), h('span', h('b', state.open ? 'Мой компьютер' : state.me.username), h('small', state.open ? 'без входа' : state.me.role === 'owner' ? 'владелец' : 'друг')));
   u.onclick = () => { location.hash = '#/profile'; };
   $('#brandMark').replaceChildren(ic('logo'));
 }
@@ -74,7 +74,7 @@ const PAGES = {
   '/downloads': (el) => mountLibrary(el),
   '/music': (el) => mountMusic(el),
   '/profile': (el) => mountProfile(el, { rerenderShell: () => { paintUser(); } }),
-  '/friends': (el) => (state.isOwner() ? mountFriends(el) : redirect('/')),
+  '/friends': (el) => (state.isOwner() && !state.open ? mountFriends(el) : redirect('/')),
   '/settings': (el) => (state.isOwner() ? mountSettings(el) : redirect('/')),
 };
 function redirect(p) { location.hash = '#' + p; return () => {}; }
@@ -166,7 +166,7 @@ async function startApp() {
   // «Поделиться» из других приложений
   const q = new URLSearchParams(location.search);
   if (q.get('share')) { const t = q.get('share'); history.replaceState(null, '', '/#/'); setTimeout(() => startFlow(t), 500); }
-  if (state.me.mustChange) setTimeout(suggestPassword, 1200);
+  if (state.me.mustChange && !state.open) setTimeout(suggestPassword, 1200);
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('/sw.js').catch(() => {});
   if (!state.tools.ytdlp || !state.tools.ffmpeg) setTimeout(() => toast(state.isOwner() ? 'Не установлены yt-dlp/ffmpeg — выполни «npm run tools»' : 'Владелец ещё не установил yt-dlp/ffmpeg', { icon: 'warning', ms: 7000 }), 1000);
 }

@@ -37,7 +37,7 @@ export const state = {
 
 export async function loadMe() {
   const d = await get('/api/me', { quiet401: true });
-  state.me = d.user; state.defaults = d.defaults; state.tools = d.tools; state.limits = d.limits; state.secure = d.secure;
+  state.me = d.user; state.defaults = d.defaults; state.tools = d.tools; state.limits = d.limits; state.secure = d.secure; state.open = !!d.open;
   return d;
 }
 export async function loadJobs() {
