@@ -1,0 +1,27 @@
+name: cleanup
+
+# Скачанные файлы живут недолго: удаляем релизы dl-* старше двух часов
+on:
+  schedule:
+    - cron: "11 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Удаление старых релизов
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          limit=$(date -u -d '2 hours ago' +%s)
+          gh api "repos/$REPO/releases?per_page=100" --jq '.[] | select(.tag_name | startswith("dl-")) | [.tag_name, .created_at] | @tsv' | while IFS=$'\t' read -r tag created; do
+            if [ "$(date -u -d "$created" +%s)" -lt "$limit" ]; then
+              echo "удаляю $tag"
+              gh release delete "$tag" --cleanup-tag -y --repo "$REPO" || true
+            fi
+          done

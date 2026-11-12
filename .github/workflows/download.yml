@@ -1,0 +1,32 @@
+name: download
+
+# Зацеп в облаке GitHub: новый issue «dl:<id> <ссылка>» запускает скачивание, файл попадает в Release dl-<id>
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  fetch:
+    if: startsWith(github.event.issue.title, 'dl:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Установка yt-dlp
+        run: python3 -m pip install -U "yt-dlp[default]"
+      - name: Скачивание
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          COOKIES: ${{ secrets.YT_COOKIES }}
+        run: node scripts/ci-download.mjs

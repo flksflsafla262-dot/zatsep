@@ -4,55 +4,149 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Зацеп — качалка видео и музыки</title>
-<meta name="description" content="Вставил ссылку — файл скачался на твоё устройство. YouTube, SoundCloud, TikTok, VK и сотни других сайтов.">
+<meta name="description" content="Вставил ссылку — файл скачался на твоё устройство. Скачивает GitHub, твой компьютер не нужен.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
-  :root { color-scheme: dark light; --bg:#000; --fg:#f6f6f7; --mu:#92929a; --card:rgba(255,255,255,.06); --line:rgba(255,255,255,.12); --ac:#fff; --on:#000; }
-  @media (prefers-color-scheme: light) { :root { --bg:#f2f2f3; --fg:#09090a; --mu:#6c6c74; --card:rgba(0,0,0,.045); --line:rgba(0,0,0,.1); --ac:#09090a; --on:#fff; } }
+  :root { color-scheme: dark; --bg:#000; --fg:#f6f6f7; --mu:#92929a; --card:rgba(255,255,255,.06); --card2:rgba(255,255,255,.1); --line:rgba(255,255,255,.13); --ac:#fff; --on:#000; --ease:cubic-bezier(.22,1,.36,1); --spring:cubic-bezier(.34,1.45,.5,1); }
+  @media (prefers-color-scheme: light) { :root { color-scheme: light; --bg:#f2f2f3; --fg:#09090a; --mu:#6c6c74; --card:rgba(0,0,0,.045); --card2:rgba(0,0,0,.08); --line:rgba(0,0,0,.11); --ac:#09090a; --on:#fff; } }
   * { box-sizing: border-box; }
-  body { margin:0; min-height:100vh; background:var(--bg); color:var(--fg); font:16px/1.55 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif; display:grid; place-items:center; padding:24px; }
-  main { width:min(720px,100%); display:grid; gap:22px; }
-  h1 { font-size:clamp(40px,9vw,76px); letter-spacing:-.045em; line-height:1; margin:0; }
-  p { color:var(--mu); margin:0; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:22px; display:grid; gap:12px; }
-  h2 { margin:0; font-size:18px; letter-spacing:-.02em; }
-  .row { display:flex; gap:10px; flex-wrap:wrap; }
-  a.btn { display:inline-flex; align-items:center; height:46px; padding:0 22px; border-radius:999px; background:var(--card); border:1px solid var(--line); color:var(--fg); text-decoration:none; font-weight:620; }
-  a.btn.pri { background:var(--ac); color:var(--on); border-color:var(--ac); }
-  pre { margin:0; padding:14px 16px; border-radius:16px; background:var(--card); border:1px solid var(--line); overflow:auto; font:14px/1.5 ui-monospace,Consolas,monospace; color:var(--fg); }
-  small { color:var(--mu); }
+  body { margin:0; min-height:100vh; min-height:100dvh; background:var(--bg); color:var(--fg); font:16px/1.55 "SF Pro Rounded","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif; -webkit-font-smoothing:antialiased; display:grid; place-items:center; padding:24px 16px; position:relative; overflow-x:hidden; }
+  body::before { content:""; position:fixed; width:70vmax; height:70vmax; left:-25vmax; top:-35vmax; border-radius:50%; background:radial-gradient(closest-side,var(--card2),transparent); filter:blur(80px); pointer-events:none; }
+  main { position:relative; width:min(720px,100%); display:grid; gap:22px; animation:in .7s var(--ease) both; }
+  @keyframes in { from { opacity:0; transform:translateY(16px); filter:blur(6px); } to { opacity:1; transform:none; filter:none; } }
+  .brand { display:flex; align-items:center; gap:12px; font-weight:700; font-size:20px; letter-spacing:-.03em; }
+  .brand i { width:34px; height:34px; border-radius:11px; background:var(--ac); color:var(--on); display:grid; place-items:center; }
+  .brand svg { width:22px; height:22px; }
+  h1 { font-size:clamp(38px,8vw,68px); letter-spacing:-.045em; line-height:1.02; margin:6px 0 0; font-weight:720; text-align:center; }
+  .sub { color:var(--mu); text-align:center; max-width:540px; margin:0 auto; }
+  .box { display:grid; gap:14px; padding:12px; border-radius:30px; background:var(--card); border:1px solid var(--line); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); box-shadow:0 18px 50px -14px rgba(0,0,0,.5); transition:border-color .3s, box-shadow .3s; }
+  .box:focus-within { border-color:var(--ac); box-shadow:0 18px 50px -14px rgba(0,0,0,.5),0 0 0 6px var(--card2); }
+  textarea { width:100%; resize:none; border:0; outline:0; background:transparent; color:inherit; font:inherit; font-size:clamp(17px,2.6vw,20px); padding:12px 14px 4px; min-height:56px; }
+  textarea::placeholder { color:var(--mu); opacity:.7; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:0 4px 4px; }
+  .grow { flex:1; }
+  .seg { position:relative; display:inline-flex; padding:4px; gap:2px; border-radius:999px; background:var(--card); border:1px solid var(--line); isolation:isolate; }
+  .seg button { position:relative; border:0; background:none; color:var(--mu); font:inherit; font-weight:600; font-size:14.5px; padding:8px 16px; border-radius:999px; cursor:pointer; transition:color .25s; }
+  .seg button.on { color:var(--on); }
+  .seg .ind { position:absolute; z-index:-1; top:0; left:0; border-radius:999px; background:var(--ac); transition:transform .5s var(--spring), width .5s var(--spring), height .5s var(--spring); }
+  select { appearance:none; -webkit-appearance:none; border:1px solid var(--line); background:var(--card); color:inherit; font:inherit; font-weight:600; font-size:14.5px; padding:9px 34px 9px 16px; border-radius:999px; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9.500 6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:16px; }
+  select option { background:#111; color:#fff; }
+  .go { height:48px; padding:0 28px; border:0; border-radius:999px; background:var(--ac); color:var(--on); font:inherit; font-weight:700; font-size:16px; cursor:pointer; display:inline-flex; align-items:center; gap:9px; transition:transform .25s var(--spring), opacity .2s; }
+  .go:hover { opacity:.9; } .go:active { transform:scale(.95); } .go:disabled { opacity:.4; pointer-events:none; }
+  .go svg { width:19px; height:19px; }
+  .status { display:grid; gap:12px; padding:20px; border-radius:26px; background:var(--card); border:1px solid var(--line); animation:in .5s var(--ease) both; }
+  .status[hidden] { display:none; }
+  .st-top { display:flex; align-items:center; gap:14px; }
+  .ring { width:30px; height:30px; border-radius:50%; border:3px solid var(--card2); border-top-color:var(--ac); animation:spin .9s linear infinite; flex:none; }
+  .ring.done { animation:none; border-color:var(--ac); display:grid; place-items:center; } .ring.err { animation:none; border-style:dashed; border-color:var(--mu); }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .st-title { font-weight:650; } .st-sub { color:var(--mu); font-size:14px; }
+  .steps { margin:0; padding-left:20px; color:var(--mu); font-size:14.5px; display:grid; gap:4px; }
+  a.btn, button.btn { display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 22px; border-radius:999px; background:var(--card2); color:var(--fg); font:inherit; font-weight:650; text-decoration:none; border:0; cursor:pointer; }
+  a.btn.pri { background:var(--ac); color:var(--on); }
+  .acts { display:flex; gap:10px; flex-wrap:wrap; }
+  footer { text-align:center; color:var(--mu); font-size:13.5px; display:grid; gap:6px; }
+  footer a { color:var(--fg); }
+  details { color:var(--mu); font-size:14.5px; } summary { cursor:pointer; color:var(--fg); font-weight:600; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.001ms !important; transition-duration:.001ms !important; } }
 </style>
 </head>
 <body>
 <main>
-  <div><h1>Зацеп</h1><p style="margin-top:14px;font-size:18px">Вставил ссылку — файл сразу скачался на твоё устройство. YouTube, SoundCloud, TikTok, VK, Rutube, X и сотни других сайтов. Без входа.</p></div>
-
-  <div class="card">
-    <h2>Почему это не просто страница на GitHub</h2>
-    <p>GitHub Pages отдаёт только статику и не умеет запускать программы. А скачивание видео делает yt-dlp + ffmpeg — им нужен сервер. Поэтому Зацеп запускается у тебя (или в облаке), а скачанное уходит прямо в твой браузер.</p>
+  <div class="brand"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v10.500m0 0-4-4m4 4 4-4"/><path d="M5 15.500a7 7 0 0 0 14 0"/></svg></i>Зацеп</div>
+  <div>
+    <h1>Вставь ссылку</h1>
+    <p class="sub" style="margin-top:14px">YouTube, SoundCloud, TikTok, VK, Rutube, X и сотни других сайтов. Скачивает GitHub — файл придёт прямо на твоё устройство.</p>
   </div>
 
-  <div class="card">
-    <h2>1. На своём компьютере — лучший вариант</h2>
-    <pre>git clone https://github.com/flksflsafla262-dot/zatsep.git
-cd zatsep
-npm install
-npm run tools
-npm start</pre>
-    <p>Нужен Node.js 22+. Дальше открой сайт и вставляй ссылки.</p>
-    <div class="row"><a class="btn pri" href="http://localhost:3000" rel="noopener">Открыть localhost:3000</a><a class="btn" href="https://nodejs.org">Скачать Node.js</a></div>
-  </div>
-
-  <div class="card">
-    <h2>2. В облаке, в два клика</h2>
-    <p>Свой сервер с публичной ссылкой. Минус: YouTube часто блокирует адреса дата-центров, тогда нужны cookies (Настройки → Cookies).</p>
+  <section class="box" id="box">
+    <textarea id="url" rows="1" placeholder="https://…" aria-label="Ссылка на видео или музыку" autocomplete="off" spellcheck="false"></textarea>
     <div class="row">
-      <a class="btn" href="https://render.com/deploy?repo=https://github.com/flksflsafla262-dot/zatsep">Запустить на Render</a>
-      <a class="btn" href="https://codespaces.new/flksflsafla262-dot/zatsep">Открыть в Codespaces</a>
+      <div class="seg" id="mode" role="tablist"><i class="ind"></i><button class="on" data-v="video" role="tab">Видео</button><button data-v="audio" role="tab">Аудио MP3</button></div>
+      <select id="q" aria-label="Качество"><option value="0">Лучшее</option><option value="1080">до 1080p</option><option value="720">до 720p</option><option value="480">до 480p</option><option value="360">до 360p</option></select>
+      <span class="grow"></span>
+      <button class="go" id="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.500-4.500M12 15l4.500-4.500M5 19.500h14"/></svg>Скачать</button>
     </div>
-    <small>Не оставляй облачную копию открытой для всех: вход отключён, ей сможет пользоваться любой, кто знает адрес.</small>
-  </div>
+  </section>
 
-  <p><a href="https://github.com/flksflsafla262-dot/zatsep" style="color:var(--fg)">Исходный код на GitHub</a> · сервис для личного использования контента, на который у тебя есть права.</p>
+  <section class="status" id="status" hidden aria-live="polite">
+    <div class="st-top"><div class="ring" id="ring"></div><div><div class="st-title" id="stTitle"></div><div class="st-sub" id="stSub"></div></div></div>
+    <ol class="steps" id="steps"></ol>
+    <div class="acts" id="acts"></div>
+  </section>
+
+  <details>
+    <summary>Как это работает</summary>
+    <p>Сайт отправляет ссылку в GitHub (откроется вкладка с готовым запросом — нажми зелёную кнопку <b>Submit new issue</b>, нужен бесплатный аккаунт GitHub). Серверы GitHub качают файл через yt-dlp и кладут его во временный релиз, а эта страница сама запускает скачивание на твоё устройство. Файлы удаляются через пару часов. Лимит — 1,9 ГБ на файл.</p>
+    <p>YouTube часто не пускает серверы GitHub («подтвердите, что вы не бот») — тогда помогает cookies.txt в секрете репозитория <code>YT_COOKIES</code> или запуск Зацепа на своём компьютере (<a href="https://github.com/flksflsafla262-dot/zatsep#запуск">инструкция</a>).</p>
+  </details>
+
+  <footer><span>Сервис для личного использования контента, на который у тебя есть права. Защищённое DRM не скачивается.</span><a href="https://github.com/flksflsafla262-dot/zatsep">Исходный код</a></footer>
 </main>
+<script>
+const REPO = 'flksflsafla262-dot/zatsep';
+const $ = (s) => document.querySelector(s);
+const url = $('#url'), go = $('#go'), q = $('#q'), box = $('#status');
+let mode = 'video', poll = null;
+
+// пилюля-переключатель
+const seg = $('#mode'), ind = seg.querySelector('.ind');
+function place(anim = true) { const b = seg.querySelector('.on'); if (!anim) ind.style.transition = 'none'; ind.style.width = b.offsetWidth + 'px'; ind.style.height = b.offsetHeight + 'px'; ind.style.transform = `translate(${b.offsetLeft}px,${b.offsetTop}px)`; if (!anim) requestAnimationFrame(() => requestAnimationFrame(() => ind.style.transition = '')); }
+seg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); mode = b.dataset.v; q.style.display = mode === 'video' ? '' : 'none'; place(); });
+addEventListener('load', () => place(false)); addEventListener('resize', () => place(false)); place(false);
+
+url.addEventListener('input', () => { url.style.height = 'auto'; url.style.height = Math.min(url.scrollHeight, 160) + 'px'; });
+url.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); start(); } });
+go.addEventListener('click', start);
+
+const rid = () => Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
+function extract(t) { const m = /https:\/\/[^\s<>"'`«»]+/i.exec(t || ''); if (m) return m[0].replace(/[)\]}>.,;:!?»”’'"]+$/g, ''); const s = /(?:^|\s)((?:www\.|m\.)?(?:youtu\.be|youtube\.com|soundcloud\.com|vk\.com|rutube\.ru|tiktok\.com|vm\.tiktok\.com|instagram\.com|x\.com|twitter\.com|bandcamp\.com|twitch\.tv|reddit\.com|vimeo\.com|dzen\.ru|ok\.ru)\/\S+)/i.exec(t || ''); return s ? 'https://' + s[1] : null; }
+
+function show(state, title, sub, steps = [], acts = '') {
+  box.hidden = false;
+  const r = $('#ring'); r.className = 'ring' + (state === 'done' ? ' done' : state === 'err' ? ' err' : '');
+  r.innerHTML = state === 'done' ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg>' : '';
+  $('#stTitle').textContent = title; $('#stSub').textContent = sub;
+  $('#steps').innerHTML = steps.map((s) => `<li>${s}</li>`).join('');
+  $('#acts').innerHTML = acts;
+}
+
+function start() {
+  const link = extract(url.value);
+  if (!link) { url.focus(); show('err', 'Не нашёл ссылку', 'Вставь адрес страницы с видео или музыкой (https://…).'); return; }
+  clearInterval(poll); clearTimeout(poll);
+  const id = rid();
+  const body = `mode=${mode}\nquality=${mode === 'video' ? q.value : 0}\nafmt=mp3\n\n(Это запрос на скачивание от сайта Зацеп. Просто нажми Submit new issue и вернись на сайт.)`;
+  const issue = `https://github.com/${REPO}/issues/new?title=${encodeURIComponent(`dl:${id} ${link}`)}&body=${encodeURIComponent(body)}`;
+  const w = window.open(issue, '_blank');
+  const open = `<a class="btn pri" href="${issue}" target="_blank" rel="noopener">Открыть запрос в GitHub</a>`;
+  show('wait', 'Жду, пока ты отправишь запрос', 'Дальше всё само.', [w ? 'Открылась вкладка GitHub — нажми зелёную кнопку <b>Submit new issue</b> (при первом разе войди в GitHub).' : 'Всплывающее окно заблокировано — нажми кнопку ниже.', 'Вернись сюда: GitHub скачает файл (обычно 20–90 секунд), и он сразу начнёт сохраняться на твоё устройство.'], open);
+  go.disabled = true;
+  watch(id, link, issue, Date.now());
+}
+
+function watch(id, link, issue, t0) {
+  let n = 0;
+  const tick = async () => {
+    n++;
+    const sec = Math.round((Date.now() - t0) / 1000);
+    if (sec > 30 * 60) { show('err', 'Слишком долго', 'GitHub не вернул файл за 30 минут. Попробуй ещё раз.'); go.disabled = false; return; }
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/releases/tags/dl-${id}`, { headers: { accept: 'application/vnd.github+json' } });
+      if (r.status === 404) { if (sec > 25) show('wait', 'GitHub качает файл…', `${sec} с · обычно 20–90 секунд`, ['Если вкладка с запросом ещё открыта — нажми <b>Submit new issue</b>.'], `<a class="btn" href="https://github.com/${REPO}/actions" target="_blank" rel="noopener">Ход работы</a>`); poll = setTimeout(tick, n < 6 ? 8000 : 15000); return; }
+      if (r.status === 403) { show('err', 'GitHub временно ограничил проверки', 'Подожди минуту — страница продолжит сама.', [], `<a class="btn" href="https://github.com/${REPO}/releases/tag/dl-${id}" target="_blank" rel="noopener">Открыть релиз вручную</a>`); poll = setTimeout(tick, 60000); return; }
+      const rel = await r.json();
+      if ((rel.body || '').startsWith('ERROR:')) { show('err', 'Не получилось скачать', rel.body.replace(/^ERROR:\s*/, ''), [], `<button class="btn" onclick="location.reload()">Попробовать другую ссылку</button>`); go.disabled = false; return; }
+      const a = (rel.assets || [])[0];
+      if (!a) { poll = setTimeout(tick, 5000); return; }
+      const title = (rel.body || '').replace(/^OK\s*/, '').split(' | ')[0];
+      show('done', 'Готово — файл сохраняется', `${title} · ${(a.size / 1048576).toFixed(1)} МБ`, ['Если скачивание не началось — нажми кнопку.'], `<a class="btn pri" id="dl" href="${a.browser_download_url}">Скачать ${a.name}</a><button class="btn" onclick="location.reload()">Ещё одну</button>`);
+      go.disabled = false; url.value = '';
+      setTimeout(() => $('#dl')?.click(), 400);
+    } catch { show('err', 'Нет связи с GitHub', 'Проверь интернет — страница попробует снова.'); poll = setTimeout(tick, 10000); }
+  };
+  poll = setTimeout(tick, 6000);
+}
+</script>
 </body>
 </html>
